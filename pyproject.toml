@@ -1,0 +1,18 @@
+
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools >= 61.0", "wheel"]
+
+[project]
+name = "redshot"
+version = "0.1.0"
+description = "RedShot is a Selenium wrapper to automate Whatsapp Web workflows"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [{name = "Alexander Krentz", email = "alexkrentz2@gmail.com"}]
+keywords = ["python", "selenium", "whatsapp", "automation"]
+dependencies = ["selenium"]
+
+[project.urls]
+"Homepage" = "https://github.com/akrentz6/redshot"
+"Documentation" = "https://github.com/akrentz6/redshot"
