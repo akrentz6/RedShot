@@ -155,6 +155,11 @@ Class `redshot.object.MessageLink`:
 - `url`: The linked url
 - `as_string()`: A formatted string of the message link contents
 
+Class `redshot.object.MessageImage`:
+
+- `binary`: The base64 string of the image
+- `as_string()`: A formatted string of the message image contents
+
 Class `redshot.object.SearchResult`:
 
 - `result_type`: The search result type
@@ -166,7 +171,7 @@ Class `redshot.object.SearchResult`:
 
 ## To Do List
 
-- [ ] Add a `MessageImage` class and parse images in messages
+- [x] ~~Add a `MessageImage` class and parse images in messages~~
 - [ ] Parse emojis within messages and other contexts
 - [ ] Add support for users to override locators in case of bugs
 - [ ] Replace `time.sleep` for waiting for messages or search results to load

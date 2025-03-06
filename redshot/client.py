@@ -1,4 +1,4 @@
-from selenium.webdriver import Chrome
+from selenium.webdriver import Chrome, ActionChains
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import StaleElementReferenceException, NoSuchElementException
 from selenium.webdriver.common.keys import Keys
@@ -152,25 +152,30 @@ class Client(EventHandler):
 
         return None
 
-    def _find_search_button(self):
+    def _click_search_button(self):
 
         inactive_search_button = self._driver.find_elements(*Locator.SEARCH_BUTTON_INACTIVE)
         if len(inactive_search_button) != 0:
-            return inactive_search_button[0]
+
+            ActionChains(self._driver).move_to_element_with_offset(inactive_search_button[0], 10, 10).click().perform()
+            return True
 
         active_search_button = self._driver.find_elements(*Locator.SEARCH_BUTTON_ACTIVE)
         if len(active_search_button) != 0:
-            return active_search_button[0]
 
-        return None
+            ActionChains(self._driver).move_to_element_with_offset(active_search_button[0], 10, 10).click().perform()
+            return True
+        
+        return False
+
 
     def get_recent_messages(self, search_field, sleep=1):
 
-        self._find_search_button().click()
+        self._click_search_button()
         self._driver.switch_to.active_element.send_keys(search_field)
 
         utils.await_exists(self._driver, Locator.CANCEL_SEARCH_BUTTON)
-        self._driver.switch_to.active_element.send_keys(Keys.DOWN, Keys.DOWN)
+        self._driver.switch_to.active_element.send_keys(Keys.DOWN)
 
         messages = []
         chat_div = utils.await_exists(self._driver, Locator.CHAT_DIV)[0]
@@ -179,33 +184,33 @@ class Client(EventHandler):
 
         chat_items = chat_div.find_elements(*Locator.CHAT_COMPONENT)
         for item in chat_items:
-
+            
             # may want to consider other elements e.g. today/yesterday notifs etc
             message = item.find_elements(*Locator.CHAT_MESSAGE)
             if len(message) != 0:
 
-                parsed_message = utils.parse_message(message[0])
+                parsed_message = utils.parse_message(self._driver, message[0])
                 messages.append(parsed_message)
 
         self._driver.switch_to.active_element.send_keys(Keys.ESCAPE)
-        self._find_search_button().click()
+        self._click_search_button()
 
         return messages
 
     def send_message(self, search_field, message):
 
-        self._find_search_button().click()
+        self._click_search_button()
         self._driver.switch_to.active_element.send_keys(search_field)
 
         utils.await_exists(self._driver, Locator.CANCEL_SEARCH_BUTTON)
-        self._driver.switch_to.active_element.send_keys(Keys.DOWN, Keys.DOWN)
+        self._driver.switch_to.active_element.send_keys(Keys.DOWN)
 
         utils.await_exists(self._driver, Locator.CHAT_INPUT_BOX)[0].click()
         self._driver.switch_to.active_element.send_keys(message, Keys.RETURN, Keys.ESCAPE)
 
     def search(self, search_field, sleep=1):
 
-        self._find_search_button().click()
+        self._click_search_button()
         self._driver.switch_to.active_element.send_keys(search_field)
 
         utils.await_exists(self._driver, Locator.CANCEL_SEARCH_BUTTON)
@@ -232,6 +237,6 @@ class Client(EventHandler):
                 if search_result is not None:
                     results.append(search_result)
 
-        self._find_search_button().click()
+        self._click_search_button()
 
         return results

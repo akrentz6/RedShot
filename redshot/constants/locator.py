@@ -36,3 +36,5 @@ class Locator:
     CHAT_MESSAGE_DATA_ID = (By.XPATH, ".//div[@data-id]")
     CHAT_MESSAGE = (By.XPATH, ".//div[@data-pre-plain-text]")
     CHAT_MESSAGE_QUOTE = (By.XPATH, ".//div[@aria-label='Quoted message']")
+    CHAT_MESSAGE_IMAGE = (By.XPATH, ".//div[@aria-label='Open picture']")
+    CHAT_MESSAGE_IMAGE_ELEMENT = (By.XPATH, ".//img[starts-with(@src, 'blob:https://web.whatsapp.com')]")

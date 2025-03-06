@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 import base64
 import re
 
-from redshot.object import Message, MessageInfo, MessageQuote, MessageLink, SearchResult
+from redshot.object import Message, MessageInfo, MessageQuote, MessageLink, MessageImage, SearchResult
 from redshot.constants import Locator
 
 def format_locators(locators):
@@ -51,19 +51,44 @@ def await_exists(parent, locators, timeout=0, poll_freq=0.05, reverse=False):
 def extract_image_from_canvas(driver, canvas):
 
     canvas_url = driver.execute_script("return arguments[0].toDataURL('image/png');", canvas)
-    canvas_base64 = re.search(r'base64,(.*)',canvas_url).group(1)
+    canvas_base64 = re.search(r"base64,(.*)", canvas_url).group(1)
 
     return base64.b64decode(canvas_base64)
 
 def parse_message_info(message):
 
     message_info_text = message.get_attribute("data-pre-plain-text")
-    message_info_comps = re.search(r"\[(\d{2}:\d{2}), (\d{2}/\d{2}/\d{4})\] (.+?): ", message_info_text)
+    message_info_comps = re.search(r"(\d{2}:\d{2}).*?(\d{1,2}/\d{1,2}/\d{4})\] (.*?):", message_info_text)
 
     if message_info_comps is not None:
         return MessageInfo(*message_info_comps.groups())
 
     return MessageInfo(None, None, None)
+
+get_base64_img_js = """
+var img = arguments[0];
+var canvas = document.createElement('canvas');
+canvas.width = img.naturalWidth;
+canvas.height = img.naturalHeight;
+var ctx = canvas.getContext('2d');
+ctx.drawImage(img, 0, 0);
+return canvas.toDataURL('image/png');
+"""
+
+def parse_message_image(driver, message):
+
+    message_images = message.find_elements(*Locator.CHAT_MESSAGE_IMAGE)
+    if len(message_images) != 0:
+        
+        message_image_elements = message_images[0].find_elements(*Locator.CHAT_MESSAGE_IMAGE_ELEMENT)
+        if len(message_image_elements) != 0:
+            
+            img_url = driver.execute_script(get_base64_img_js, message_image_elements[0])
+            img_base64 = re.search(r'base64,(.*)', img_url).group(1)
+
+            return MessageImage(img_base64)
+
+    return None
 
 def parse_message_quote(quote_text):
 
@@ -90,12 +115,13 @@ def parse_message_link(link_text):
     except IndexError:
         return None
 
-def parse_message(message):
+def parse_message(driver, message):
 
     message_children = message.find_elements(By.XPATH, "./div")
     message_quote = message.find_elements(*Locator.CHAT_MESSAGE_QUOTE)
     message_info = parse_message_info(message)
-
+    message_image = parse_message_image(driver, message)
+    
     # len(message_quote) != 0 should be redundant
     if len(message_children) == 3 and len(message_quote) != 0:
 
@@ -106,7 +132,7 @@ def parse_message(message):
         link = parse_message_link(link_text)
 
         message_text = message.text.replace(quote_text, "").replace(link_text, "").lstrip("\n")
-        return Message(message_info, message_text, quote=quote, link=link)
+        return Message(message_info, message_text, quote=quote, link=link, image=message_image)
 
     elif len(message_quote) != 0:
 
@@ -114,7 +140,7 @@ def parse_message(message):
         quote = parse_message_quote(quote_text)
 
         message_text = message.text.replace(quote_text, "").lstrip("\n")
-        return Message(message_info, message_text, quote=quote)
+        return Message(message_info, message_text, quote=quote, image=message_image)
 
     elif len(message_children) == 2:
 
@@ -122,11 +148,11 @@ def parse_message(message):
         link = parse_message_link(link_text)
 
         message_text = message.text.replace(link_text, "").lstrip("\n")
-        return Message(message_info, message_text, link=link)
+        return Message(message_info, message_text, link=link, image=message_image)
 
     else:
         message_text = message.text
-        return Message(message_info, message_text)
+        return Message(message_info, message_text, image=message_image)
 
 def parse_search_result(search_result, search_type):
 
