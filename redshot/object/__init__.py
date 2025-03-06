@@ -1,4 +1,4 @@
-from .message import Message, MessageInfo, MessageQuote, MessageLink
+from .message import Message, MessageInfo, MessageQuote, MessageLink, MessageImage
 from .search import SearchResult
 
 __all__ = [
@@ -6,5 +6,6 @@ __all__ = [
     "MessageInfo",
     "MessageQuote",
     "MessageLink",
+    "MessageImage",
     "SearchResult"
 ]

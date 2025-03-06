@@ -1,15 +1,15 @@
+from dataclasses import dataclass
+from typing import Optional
 
-
+@dataclass
 class SearchResult:
 
-    def __init__(self, result_type, title, datetime, info, unread_messages, group=None):
-
-        self.result_type = result_type
-        self.title = title
-        self.datetime = datetime
-        self.info = info
-        self.unread_messages = unread_messages
-        self.group = group
+    result_type: str
+    title: str
+    datetime: str
+    info: str
+    unread_messages: int
+    group: Optional[str] = None
 
     def has_group(self):
         return self.group is not None
