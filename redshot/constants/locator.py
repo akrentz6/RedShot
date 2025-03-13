@@ -1,3 +1,4 @@
+from typing import List
 from selenium.webdriver.common.by import By
 
 class Locator:
@@ -38,3 +39,44 @@ class Locator:
     CHAT_MESSAGE_QUOTE = (By.XPATH, ".//div[@aria-label='Quoted message']")
     CHAT_MESSAGE_IMAGE = (By.XPATH, ".//div[@aria-label='Open picture']")
     CHAT_MESSAGE_IMAGE_ELEMENT = (By.XPATH, ".//img[starts-with(@src, 'blob:https://web.whatsapp.com')]")
+
+    @classmethod
+    def set_locator(cls, locator_name: str, locator: tuple) -> bool:
+        """
+        Sets a specific locator to a new value.
+
+        Parameters:
+            locator_name (str): The name of the locator you want to update.
+            locator (tuple): The new locator tuple (e.g., (By.ID, "new_id_value")).
+        """
+        name = locator_name.upper()
+
+        if hasattr(cls, name):
+            setattr(cls, name, locator)
+            return True
+        
+        return False
+
+    @classmethod
+    def set_locators(cls, locators: dict) -> List[bool]:
+        """
+        Bulk-updates multiple locators.
+
+        Parameters:
+            locators (dict): A dictionary where keys are locator names (str) and values are the new locator tuples.
+        """
+        return [cls.set_locator(key, value) for key, value in locators.items()]
+        
+    @classmethod
+    def get_locator(cls, locator_name: str):
+        """
+        Retrieves a locator tuple by name.
+
+        Parameters:
+            locator_name (str): The name of the locator.
+
+        Returns:
+            tuple: The locator tuple if found, else None.
+        """
+        return getattr(cls, locator_name.upper(), None)
+    
