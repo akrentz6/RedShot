@@ -22,6 +22,8 @@ Whatsapp Web is constantly changing so this library is very susceptible to break
 
 - [Objects](#objects)
 
+- [Locators](#locators)
+
 - [To Do List](#to-do-list)
 
 ## Installation
@@ -168,6 +170,14 @@ Class `redshot.object.SearchResult`:
 - `info`: The search result's info section
 - `unread_messages`: The number of unread messages
 - `group`: The group the search result is in (if the search result is a chat)
+
+## Locators
+
+In the likely event that Whatsapp changes the structure of their website, issues may be fixed in the short term by manually overloading certain locators. Each locator is a tuple pair (by, by_str) which allow you to find elements in HTML by a certain characteristic (e.g. name, xpath, id, etc). 
+
+`redshot.constants.Locator.set_locator(locator_name, locator)`: Updates a single locator (see the source code for the given locator name). Returns `True` if successful.
+
+`redshot.constants.Locator.set_locator(locators)`: Updates multiple locators by passing a `dict` of locator names and associated tuples. Returns a list of booleans.
 
 ## To Do List
 
